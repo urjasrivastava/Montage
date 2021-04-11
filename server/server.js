@@ -8,7 +8,10 @@ console.log(err)
 console.info('Server started on port %s.', config.port)
 })
 mongoose.Promise = global.Promise
-mongoose.connect(config.mongoUri)
-mongoose.connection.on('error', () => {
-throw new Error(`unable to connect to database: ${mongoUri}`)
-})
+mongoose.connect(config.mongoUri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => {
+    console.log('MongoDB Connected')
+  })
+  .catch(err => console.log(err))
