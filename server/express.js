@@ -8,15 +8,22 @@ import helmet from 'helmet'
 import Template from './../template'
 import userRoutes from './routes/user.routes'
 import authRoutes from './routes/auth.routes'
+import mediaRoutes from './routes/media.routes'
 
 // modules for server side rendering
 import React from 'react'
 import ReactDOMServer from 'react-dom/server'
 import MainRouter from './../client/MainRouter'
-import { StaticRouter } from 'react-router-dom'
+import { Redirect, StaticRouter } from 'react-router-dom'
 
 import { ServerStyleSheets, ThemeProvider } from '@material-ui/styles'
 import theme from './../client/theme'
+//end
+
+//For SSR with data
+import { matchRoutes } from 'react-router-config'
+import routes from './../client/routeConfig'
+import 'isomorphic-fetch'
 //end
 
 //comment out before building for production
@@ -39,31 +46,42 @@ app.use(helmet())
 app.use(cors())
 
 app.use('/dist', express.static(path.join(CURRENT_WORKING_DIR, 'dist')))
+const loadBranchData = (location) => {
+  const branch = matchRoutes(routes, location)
+  const promises = branch.map(({ route, match }) => {
+    return route.loadData
+      ? route.loadData(branch[0].match.params)
+      : Promise.resolve(null)
+  })
+  return Promise.all(promises)
+}
 
 // mount routes
 app.use('/', userRoutes)
 app.use('/', authRoutes)
-
+app.use('/',mediaRoutes)
 app.get('*', (req, res) => {
   const sheets = new ServerStyleSheets()
   const context = {}
-  const markup = ReactDOMServer.renderToString(
-    sheets.collect(
-          <StaticRouter location={req.url} context={context}>
-            <ThemeProvider theme={theme}>
-              <MainRouter />
-            </ThemeProvider>
-          </StaticRouter>
-        )
+  loadBranchData(req.url).then(data=>{
+    const markup =ReactDOMServer.renderToString(
+      sheets.collect(
+        <StaticRouter location={req.url} context={context}>
+          <ThemeProvider theme={theme}>
+            <MainRouter data={data}/>
+          </ThemeProvider>
+        </StaticRouter>
+      )
     )
-    if (context.url) {
-      return res.redirect(303, context.url)
-    }
+    if(context.url)
+    return res.Redirect(303,context.url)
     const css = sheets.toString()
     res.status(200).send(Template({
-      markup: markup,
-      css: css
-    }))
+       markup: markup,
+       css: css}))
+  }).catch(err=>{
+    res.status(500).send({"error":"Could not load react views with data"})
+  })
 })
 
 // Catch unauthorised errors

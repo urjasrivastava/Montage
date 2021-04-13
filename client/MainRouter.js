@@ -8,8 +8,12 @@ import EditProfile from './user/EditProfile'
 import Profile from './user/Profile'
 import PrivateRoute from './auth/PrivateRoute'
 import Menu from './core/Menu'
-
-const MainRouter = () => {
+import NewMedia from './media/NewMedia'
+import PlayMedia from './media/PlayMedia'
+import EditMedia from './media/EditMedia'
+import PopularMedia from './media/MostPopular'
+import MediaUser from './media/MediaUser'
+const MainRouter = ({data}) => {
     return (<div>
       <Menu/>
       <Switch>
@@ -19,6 +23,13 @@ const MainRouter = () => {
         <Route path="/signin" component={Signin}/>
         <PrivateRoute path="/user/edit/:userId" component={EditProfile}/>
         <Route path="/user/:userId" component={Profile}/>
+        <PrivateRoute path="/media/new" component={NewMedia}/>
+        <Route path="/media/by/:userId" component={MediaUser}/>
+        <PrivateRoute path="/media/edit/:mediaId" component={EditMedia}/>
+        <Route path="/mostPopular" component={PopularMedia}/>
+        <Route path="/media/:mediaId" render={(props) => (
+            <PlayMedia {...props} data={data} />
+        )} />
       </Switch>
     </div>)
 }

@@ -16,6 +16,8 @@ import DeleteUser from './DeleteUser'
 import auth from './../auth/auth-helper'
 import {read} from './api-user.js'
 import {Redirect, Link} from 'react-router-dom'
+import AirplayIcon from '@material-ui/icons/Airplay';
+import MediaUser from '../media/MediaUser'
 
 const useStyles = makeStyles(theme => ({
   root: theme.mixins.gutters({
@@ -88,6 +90,14 @@ export default function Profile({ match }) {
             <ListItemText primary={"Joined: " + (
               new Date(user.created)).toDateString()}/>
           </ListItem>
+          <Divider/>         
+          <Link to={"/media/by/" + user._id}>
+                  <IconButton aria-label="Life in Motion" color="primary">
+                    <AirplayIcon/>
+                     Life in Motion
+                  </IconButton>
+           </Link>
+          
         </List>
       </Paper>
     )
