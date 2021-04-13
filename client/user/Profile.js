@@ -96,8 +96,7 @@ export default function Profile({ match }) {
                     <AirplayIcon/>
                      Life in Motion
                   </IconButton>
-           </Link>
-          
+           </Link>          
         </List>
       </Paper>
     )
