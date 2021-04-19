@@ -37,7 +37,7 @@ const useStyles =makeStyles(theme =>({
 }))
 export default function Media(props){
     const classes= useStyles()
-    const mediaUrl= props.media._id?`/api/media/video/${props.media._id}`:null
+    const mediaUrl= props.media._id? `/api/media/video/${props.media._id}`:null
     const nextUrl=props.nextUrl
     return (
         <Card className={classes.card}>
