@@ -90,7 +90,7 @@ const listPopular= async(signal)=>{
  }
  const listRelated =async(params,signal)=>{
     try{
-        let response =await fetch('/api/media/related/'+params.mediaId,{
+        let response =await fetch('/api/media/related/'+params.Id,{
             method:'GET',
             signal:signal,
             headers:{

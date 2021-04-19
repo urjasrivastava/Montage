@@ -45,7 +45,6 @@ export default function PlayMedia(props) {
   useEffect(() => {
     const abortController = new AbortController()
     const signal = abortController.signal
-
     listRelated({
       mediaId: props.match.params.mediaId}, signal).then((data) => {
       if (data.error) {
