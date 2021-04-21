@@ -56,12 +56,11 @@ export default function EditProfile({ match }) {
     name: '',
     about: '',
     photo: '',
-    password: '',
     email: '',
-    open: false,
-    error: '',
+    password: '',
     redirectToProfile: false,
-    id: ''
+    error: '',
+    userId: ''
   })
   const jwt = auth.isAuthenticated()
 
@@ -75,7 +74,7 @@ export default function EditProfile({ match }) {
       if (data && data.error) {
         setValues({...values, error: data.error})
       } else {
-        setValues({...values, id: data._id, name: data.name, email: data.email, about: data.about})
+        setValues({...values, userId: data._id, name: data.name, email: data.email, about: data.about})
       }
     })
     return function cleanup(){
@@ -85,44 +84,38 @@ export default function EditProfile({ match }) {
   }, [match.params.userId])
 
   const clickSubmit = () => {
-    const user = {
-      name: values.name || undefined,
-      email: values.email || undefined,
-      password: values.password || undefined,
-      about: values.about || undefined,
-      photo: values.photo || undefined
-    }
+    let userData = new FormData()
+    values.name && userData.append('name', values.name)
+    values.email && userData.append('email', values.email)
+    values.password && userData.append('password', values.password)
+    values.about && userData.append('about', values.about)
+    values.photo && userData.append('photo', values.photo)
     update({
       userId: match.params.userId
     }, {
       t: jwt.token
-    }, user).then((data) => {
+    }, userData).then((data) => {
       if (data && data.error) {
         setValues({...values, error: data.error})
       } else {
-        setValues({...values, userId: data._id, redirectToProfile: true})
+        setValues({...values,userId: data._id, redirectToProfile: true})
       }
     })
   }
   const handleChange = name => event => {
-    const value = name === 'photo'
-      ? event.target.files[0]
-      : event.target.value
-    //userData.set(name, value)
+    const value = name === 'photo'? event.target.files[0]: event.target.value
     setValues({...values, [name]: value })
   }
-  const photoUrl = values.userId
-  ? `/api/users/photo/${values.userId}?${new Date().getTime()}`
-  : '/api/users/defaultphoto'
+  const photoUrl = values.userId ? `/api/users/photo/${values.userId}?${new Date().getTime()}` : '/api/users/defaultphoto'
 
-    if (values.redirectToProfile) {
+    if (values.redirectToProfile===true) {
       return (<Redirect to={'/user/' + values.userId}/>)
     }
     return (
       <Card className={classes.card}>
         <CardContent>
           <Typography variant="h6" className={classes.title}>
-            Edit Profile
+            Edit Profile 
           </Typography>
           <Avatar src={photoUrl} className={classes.bigAvatar}/><br/>
           <input accept="image/*" onChange={handleChange('photo')} className={classes.input} id="icon-button-file" type="file" />

@@ -57,22 +57,23 @@ const listPopular= async(signal)=>{
         console.log(err)
     }
  }
- const update= async(params,credentials,media)=>{
-     try{
-         let response =await fetch('/api/media/'+params.mediaId,{
-             method:'PUT',
-             headers:{
-                 'Accept':'application/json',
-                 'Content-Type':'application/json',
-                 'Authorization':'Bearer'+credentials.t
-             },
-             body: JSON.stringify(media)
-         })
-         return await response.json()
-     }catch(err){
+ const update = async (params, credentials, media) => {
+    try {
+      let response = await fetch('/api/media/' + params.mediaId, {
+      method: 'PUT',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + credentials.t
+      },
+      body: JSON.stringify(media)
+    })    
+      return await response.json()
+      } catch(err) {
         console.log(err)
-    }
- }
+      }
+  }
+  
  const remove= async(params,credentials)=>{
      try{
         let response =await fetch('/api/media/'+params.mediaId,{
@@ -90,7 +91,7 @@ const listPopular= async(signal)=>{
  }
  const listRelated =async(params,signal)=>{
     try{
-        let response =await fetch('/api/media/related/'+params.Id,{
+        let response =await fetch('/api/media/related/'+params.mediaId,{
             method:'GET',
             signal:signal,
             headers:{

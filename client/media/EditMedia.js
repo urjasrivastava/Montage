@@ -11,83 +11,86 @@ import auth from './../auth/auth-helper'
 import {read, update} from './api-media.js'
 import {Redirect} from 'react-router-dom'
 
-const useStyles =makeStyles(theme=>({
-    card :{
-        maxWidth:500,
-        margin:'auto',
-        textAlign:'center',
-        marginTop: theme.spacing(5),
-        paddingBottom:theme.spacing(2)
-    },
-    title: {
-        margin: theme.spacing(2),
-        color: theme.palette.protectedTitle,
-        fontSize: '1em'
-      },
-      error: {
-        verticalAlign: 'middle'
-      },
-      textField: {
-        marginLeft: theme.spacing(1),
-        marginRight: theme.spacing(1),
-        width: 300
-      },
-      submit: {
-        margin: 'auto',
-        marginBottom: theme.spacing(2)
-      },
-      input: {
-      display: 'none'
-    },
-    filename:{
-      marginLeft:'10px'
-    }
+const useStyles = makeStyles(theme => ({
+  card: {
+    maxWidth: 500,
+    margin: 'auto',
+    textAlign: 'center',
+    marginTop: theme.spacing(5),
+    paddingBottom: theme.spacing(2)
+  },
+  title: {
+    margin: theme.spacing(2),
+    color: theme.palette.protectedTitle,
+    fontSize: '1em'
+  },
+  error: {
+    verticalAlign: 'middle'
+  },
+  textField: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    width: 300
+  },
+  submit: {
+    margin: 'auto',
+    marginBottom: theme.spacing(2)
+  },
+  input: {
+  display: 'none'
+},
+filename:{
+  marginLeft:'10px'
+}
 }))
-export default function EditMedia({match}){
-    const classes =useStyles()
-    const [media,setMedia]= useState({title:'',description:'',genre:''})
-    const [redirect,setRedirect]= useState(false)
-    const [error,setError]=useState('')
-    const jwt =auth.isAuthenticated()
-    useEffect(()=>{
-        const abortController =new AbortController()
-        const signal =abortController.signal
-        read({media:match.params.mediaId}).then((data)=>{
-            if(data.error){
-                setError(data.error)
-            }
-            else{
-                setMedia(data)
-            }
-        })
-        return function cleanup(){
-            abortController.abort()
-        }
-    },[match.params.mediaId])
-    const clickSubmit=()=>{
-        const jwt= auth.isAuthenticated()
-        update({
-            mediaId:media._id
-        },{
-            t:jwt.token
-        },media).then((data)=>{
-            if(data.error){
-                setError(data.error)
-            }else{
-                setRedirect(true)
-            }
-        })
+
+export default function EditProfile({ match }) {
+  const classes = useStyles()
+  const [media, setMedia] = useState({title: '', description:'', genre:''})
+  const [redirect, setRedirect] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    const abortController = new AbortController()
+    const signal = abortController.signal
+
+    read({mediaId: match.params.mediaId},signal).then((data) => {
+      if (data.error) {
+        setError(data.error)
+      } else {
+        setMedia(data)
+      }
+    })
+    return function cleanup(){
+      abortController.abort()
     }
-    const handleChange=name=>event=>{
-        let updatedMedia={...media}
-        updatedMedia[name]=event.target.value
-        setMedia(updatedMedia)
-    }
-    if(redirect){
-        return (<Redirect to={'/media/'+media._id}/>)
+  }, [match.params.mediaId])
+
+  const clickSubmit = () => {
+    const jwt = auth.isAuthenticated()
+    update({
+      mediaId: media._id
+    }, {
+      t: jwt.token
+    }, media).then((data) => {
+      if (data.error) {
+        setError(data.error)
+      } else {
+        setRedirect(true)
+      }
+    })
+  }
+
+  const handleChange = name => event => {
+    let updatedMedia = {...media}
+    updatedMedia[name] = event.target.value
+    setMedia(updatedMedia)
+  }
+    if (redirect) {
+      return (<Redirect to={'/media/' + media._id}/>)
     }
     return (
-        <Card className={classes.card}>
+      <Card className={classes.card}>
         <CardContent>
           <Typography type="headline" component="h1" className={classes.title}>
             Edit Video Details
