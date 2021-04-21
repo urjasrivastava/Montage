@@ -18,6 +18,9 @@ import {read} from './api-user.js'
 import {Redirect, Link} from 'react-router-dom'
 import AirplayIcon from '@material-ui/icons/Airplay';
 import MediaUser from '../media/MediaUser'
+import FollowProfileButton from './../user/FollowProfileButton'
+import ProfileTabs from './../user/ProfileTabs'
+import {listByUser} from './../post/api-post.js'
 
 const useStyles = makeStyles(theme => ({
   root: theme.mixins.gutters({
@@ -29,13 +32,22 @@ const useStyles = makeStyles(theme => ({
   title: {
     marginTop: theme.spacing(3),
     color: theme.palette.protectedTitle
+  },
+  bigAvatar: {
+    width: 60,
+    height: 60,
+    margin: 10
   }
 }))
 
 export default function Profile({ match }) {
   const classes = useStyles()
-  const [user, setUser] = useState({})
-  const [redirectToSignin, setRedirectToSignin] = useState(false)
+  const [values, setValues] = useState({
+    user: {following:[], followers:[]},
+    redirectToSignin: false,
+    following: false
+  })
+  const [posts, setPosts] = useState([])
   const jwt = auth.isAuthenticated()
 
   useEffect(() => {
@@ -46,9 +58,11 @@ export default function Profile({ match }) {
       userId: match.params.userId
     }, {t: jwt.token}, signal).then((data) => {
       if (data && data.error) {
-        setRedirectToSignin(true)
+        setValues({...values, redirectToSignin: true})
       } else {
-        setUser(data)
+        let following = checkFollow(data)
+        setValues({...values, user: data, following: following})
+        loadPosts(data._id)
       }
     })
 
@@ -58,9 +72,51 @@ export default function Profile({ match }) {
 
   }, [match.params.userId])
   
-    if (redirectToSignin) {
+  const checkFollow = (user) => {
+    const match = user.followers.some((follower)=> {
+      return follower._id == jwt.user._id
+    })
+    return match
+  }
+  const clickFollowButton = (callApi) => {
+    callApi({
+      userId: jwt.user._id
+    }, {
+      t: jwt.token
+    }, values.user._id).then((data) => {
+      if (data.error) {
+        setValues({...values, error: data.error})
+      } else {
+        setValues({...values, user: data, following: !values.following})
+      }
+    })
+  }
+  const loadPosts = (user) => {
+    listByUser({
+      userId: user
+    }, {
+      t: jwt.token
+    }).then((data) => {
+      if (data.error) {
+        console.log(data.error)
+      } else {
+        setPosts(data)
+      }
+    })
+  }
+  const removePost = (post) => {
+    const updatedPosts = posts
+    const index = updatedPosts.indexOf(post)
+    updatedPosts.splice(index, 1)
+    setPosts(updatedPosts)
+  }
+
+  const photoUrl = values.user._id
+              ? `/api/users/photo/${values.user._id}?${new Date().getTime()}`
+              : '/api/users/defaultphoto'
+  if (values.redirectToSignin) {
       return <Redirect to='/signin'/>
-    }
+  }
     return (
       <Paper className={classes.root} elevation={4}>
         <Typography variant="h6" className={classes.title}>
@@ -69,35 +125,37 @@ export default function Profile({ match }) {
         <List dense>
           <ListItem>
             <ListItemAvatar>
-              <Avatar>
-                <Person/>
-              </Avatar>
+              <Avatar src={photoUrl} className={classes.bigAvatar}/>
             </ListItemAvatar>
-            <ListItemText primary={user.name} secondary={user.email}/> {
-             auth.isAuthenticated().user && auth.isAuthenticated().user._id == user._id &&
-              (<ListItemSecondaryAction>
-                <Link to={"/user/edit/" + user._id}>
-                  <IconButton aria-label="Edit" color="primary">
-                    <Edit/>
-                  </IconButton>
-                </Link>
-                <DeleteUser userId={user._id}/>
-              </ListItemSecondaryAction>)
+            <ListItemText primary={values.user.name} secondary={values.user.email}/> {
+             auth.isAuthenticated().user && auth.isAuthenticated().user._id == values.user._id
+             ? (<ListItemSecondaryAction>
+                  <Link to={"/user/edit/" + values.user._id}>
+                    <IconButton aria-label="Edit" color="primary">
+                      <Edit/>
+                    </IconButton>
+                  </Link>
+                  <DeleteUser userId={values.user._id}/>
+                </ListItemSecondaryAction>)
+            : (<FollowProfileButton following={values.following} onButtonClick={clickFollowButton}/>)
             }
           </ListItem>
           <Divider/>
           <ListItem>
-            <ListItemText primary={"Joined: " + (
-              new Date(user.created)).toDateString()}/>
+            <ListItemText primary={values.user.about} secondary={"Joined: " + (
+              new Date(values.user.created)).toDateString()}/>
           </ListItem>
           <Divider/>         
-          <Link to={"/media/by/" + user._id}>
+          <Link to={"/media/by/" + values.user._id}>
                   <IconButton aria-label="Life in Motion" color="primary">
                     <AirplayIcon/>
                      Life in Motion
                   </IconButton>
-           </Link>          
+           </Link> 
         </List>
+        <ProfileTabs user={values.user} posts={posts} removePostUpdate={removePost}/>
       </Paper>
     )
   }
+
+  
