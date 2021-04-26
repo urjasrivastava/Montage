@@ -9,7 +9,8 @@
       ],
       "@babel/preset-react"
     ],
-    "plugins": [
+    
+    "plugins": [ "add-react-displayname",
       "react-hot-loader/babel"
     ]
 }
