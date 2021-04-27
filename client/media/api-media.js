@@ -77,7 +77,7 @@ const listPopular= async(signal)=>{
  const remove= async(params,credentials)=>{
      try{
         let response =await fetch('/api/media/'+params.mediaId,{
-            method:'PUT',
+            method:'DELETE',
             headers:{
                 'Accept':'application/json',
                 'Content-Type':'application/json',
