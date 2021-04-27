@@ -81,7 +81,7 @@ const listPopular= async(signal)=>{
             headers:{
                 'Accept':'application/json',
                 'Content-Type':'application/json',
-                'Authorization':'Bearer'+credentials.t
+                'Authorization':'Bearer '+credentials.t
             }
         })
         return await response.json()
