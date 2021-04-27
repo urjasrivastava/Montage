@@ -85,7 +85,7 @@ export default function NewMedia(){
   }
 
     if (values.redirect) {
-      return (<Redirect to={'/media/new'}/>)
+      return (<Redirect to={'/'}/>)
     }
     return (
       <Card className={classes.card}>
