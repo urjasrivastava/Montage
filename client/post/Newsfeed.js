@@ -7,6 +7,7 @@ import auth from './../auth/auth-helper'
 import PostList from './PostList'
 import {listNewsFeed} from './api-post.js'
 import NewPost from './NewPost'
+import {Redirect} from 'react-router-dom'
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -27,7 +28,7 @@ export default function Newsfeed () {
   const classes = useStyles()
   const [posts, setPosts] = useState([])
   const jwt = auth.isAuthenticated()
-
+ 
   useEffect(() => {
     const abortController = new AbortController()
     const signal = abortController.signal
@@ -53,14 +54,18 @@ export default function Newsfeed () {
     const updatedPosts = [...posts]
     updatedPosts.unshift(post)
     setPosts(updatedPosts)
+    refreshPage();
   }
   const removePost = (post) => {
     const updatedPosts = [...posts]
     const index = updatedPosts.indexOf(post)
     updatedPosts.splice(index, 1)
     setPosts(updatedPosts)
+    refreshPage();
   }
-
+  const refreshPage=()=> {
+    window.location.reload();
+  }
     return (
       <Card className={classes.card}>
         <Typography type="title" className={classes.title}>

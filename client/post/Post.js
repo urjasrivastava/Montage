@@ -61,13 +61,7 @@ export default function Post (props){
     likes: props.post.likes.length,
     comments: props.post.comments
   })
-  
-  // useEffect(() => {
-  //   setValues({...values, like:checkLike(props.post.likes), likes: props.post.likes.length, comments: props.post.comments})
-  // }, [])
-
-  
-
+    
   const clickLike = () => {
     let callApi = values.like ? unlike : like
     callApi({
