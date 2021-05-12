@@ -4,9 +4,7 @@
   "description": "authentication server",
   "main": "template.js",
   "scripts": {
-    "development": "nodemon",
-    "build": "webpack --config webpack.config.client.production.js && webpack --mode=production --config webpack.config.server.js",
-    "start": "node ./dist/server.generated.js"
+    "development": "nodemon"
   },
   "author": "Urja Srivastava",
   "license": "ISC",
